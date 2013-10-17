@@ -5,7 +5,8 @@ import java.util.Random;
 import mapgenerator.Tile;
 
 public class NoiseGenerator {
-
+	private Random r;
+	
 	public NoiseGenerator() {
 
 	}
@@ -13,7 +14,7 @@ public class NoiseGenerator {
 	public float[][] GenerateWhiteNoise(int width, int height, int borderWidth,
 			int seed) {
 
-		Random random = new Random(seed);
+		Random r = new Random(seed);
 
 		float[][] noise = new float[width][height];
 
@@ -24,7 +25,7 @@ public class NoiseGenerator {
 						|| (j <= borderWidth) || (j >= height - borderWidth)) {
 					noise[i][j] = (float) 0;
 				} else {
-					noise[i][j] = (float) random.nextDouble() % 1;
+					noise[i][j] = (float) r.nextDouble() % 1;
 				}
 			}
 		}

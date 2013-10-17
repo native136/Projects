@@ -5,9 +5,11 @@ import java.awt.Color;
 public class Tile {
 	
 	public enum Type {
-		EMPTY,BLACK_WATER, DEEP_WATER, WATER, SHALLOW_WATER, SAND, GRASS, FOREST, BASE_MOUNTAIN, MOUNTAIN, SNOW
+		EMPTY,BLACK_WATER, DEEP_WATER, WATER, SHALLOW_WATER, SAND, GRASS, FOREST, BASE_MOUNTAIN, MOUNTAIN, SNOW,
+		RIVER_SOURCE, RIVER, ROAD,TOWNCENTER, BUILDING, WALL
 	}
 
+	private Boolean isWalkable;
 	private float depth;
 	private int x,y, width, height;
 	private Type type;
@@ -106,9 +108,45 @@ public class Tile {
 			color = new Color(180, 180, 180);
 		} else if (type == Type.SNOW) {
 			color = Color.white;
+		}else if (type == Type.RIVER_SOURCE) {
+			color = Color.CYAN;
+		}else if (type == Type.RIVER) {
+			color = Color.CYAN;
+		}else if (type == Type.TOWNCENTER) {
+			color = Color.orange;
+		}else if (type == Type.ROAD) {
+			color = Color.ORANGE;
+		}else if (type == Type.BUILDING) {
+			color = Color.RED;
+		}else if (type == Type.WALL) {
+			color = Color.BLACK;
 		}
 		
 		return color;
+	}
+
+	public float getDepth() {
+		return depth;
+	}
+
+	public void setDepth(float depth) {
+		this.depth = depth;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
 	}
 
 	

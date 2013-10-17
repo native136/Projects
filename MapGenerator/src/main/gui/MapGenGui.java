@@ -4,31 +4,22 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
-
-import java.awt.Color;
-
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.border.EtchedBorder;
 
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.FlowLayout;
-
 import javax.swing.JTextField;
-import javax.swing.JCheckBox;
-import javax.swing.SwingConstants;
 import javax.swing.JButton;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.ImageIcon;
 
 import main.GUIHandler;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
+
+import java.awt.Font;
 
 public class MapGenGui {
 
@@ -42,7 +33,8 @@ public class MapGenGui {
 	private JLabel lblImageHolder;
 	private JScrollPane scrollPane;
 	private JPanel pnlImg;
-
+	private JPanel pnlImgControls;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -73,6 +65,7 @@ public class MapGenGui {
 	 */
 	private void initialize() {
 		MainFrame = new JFrame();
+		MainFrame.setResizable(false);
 		MainFrame.setTitle("Terrain Generator");
 		MainFrame.setBounds(100, 100, 1015, 715);
 		MainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,7 +89,7 @@ public class MapGenGui {
 		
 		JPanel pnlControls = new JPanel();
 		pnlControls.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		pnlControls.setBounds(10, 11, 314, 655);
+		pnlControls.setBounds(10, 11, 314, 281);
 		MainFrame.getContentPane().add(pnlControls);
 		pnlControls.setLayout(null);
 		
@@ -141,27 +134,20 @@ public class MapGenGui {
 		pnlControls.add(txtBorderWidth);
 		txtBorderWidth.setColumns(10);
 		
-		JButton btnGenerateImage = new JButton("Generate Image");
-		btnGenerateImage.addActionListener(new ActionListener() {
+		JButton btnGenerateTerrain = new JButton("Generate Image");
+		btnGenerateTerrain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				handler.GenerateNewMap(txtWidth.getText(),txtHeight.getText(),sliderAmp.getValue(),txtBorderWidth.getText(),txtSeed.getText());
 				handler.MapToPanel();
+				pnlImgControls.setVisible(true);
+				
 			}
 		});
-		btnGenerateImage.setBounds(10, 553, 294, 23);
-		pnlControls.add(btnGenerateImage);
-		
-		JButton btnDumpArray = new JButton("Dump Array to .txt");
-		btnDumpArray.setBounds(10, 621, 294, 23);
-		pnlControls.add(btnDumpArray);
-		
-		JButton btnSaveImage = new JButton("Save Image as .png");
-		btnSaveImage.setEnabled(false);
-		btnSaveImage.setBounds(10, 587, 294, 23);
-		pnlControls.add(btnSaveImage);
+		btnGenerateTerrain.setBounds(10, 247, 294, 23);
+		pnlControls.add(btnGenerateTerrain);
 		
 		JLabel lblRandomSeed = new JLabel("Random Seed:");
-		lblRandomSeed.setBounds(10, 170, 76, 14);
+		lblRandomSeed.setBounds(10, 135, 76, 14);
 		pnlControls.add(lblRandomSeed);
 		
 		JLabel lblPx = new JLabel("px");
@@ -173,10 +159,81 @@ public class MapGenGui {
 		pnlControls.add(label);
 		
 		txtSeed = new JTextField();
-		txtSeed.setBounds(87, 167, 199, 20);
+		txtSeed.setBounds(87, 132, 199, 20);
 		pnlControls.add(txtSeed);
 		txtSeed.setColumns(10);
+		
+		pnlImgControls = new JPanel();
+		pnlImgControls.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		pnlImgControls.setBounds(10, 303, 314, 191);
+		MainFrame.getContentPane().add(pnlImgControls);
+		pnlImgControls.setLayout(null);
+		
+		JButton btnSaveAsImage = new JButton("Save Image as .png");
+		btnSaveAsImage.setBounds(10, 123, 294, 23);
+		pnlImgControls.add(btnSaveAsImage);
+		
+		JButton btnSaveAsTxt = new JButton("Dump Array to .txt");
+		btnSaveAsTxt.setBounds(10, 157, 294, 23);
+		pnlImgControls.add(btnSaveAsTxt);
+		
+		JLabel lblScale = new JLabel("Scale:");
+		lblScale.setBounds(10, 15, 54, 14);
+		pnlImgControls.add(lblScale);
+		
+		JButton btnScale2 = new JButton("X 2");
+		btnScale2.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnScale2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				handler.scaledImage(2);
+			}
+		});
+		btnScale2.setBounds(74, 11, 70, 23);
+		pnlImgControls.add(btnScale2);
+		
+		JButton btnScale4 = new JButton("X 4");
+		btnScale4.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnScale4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				handler.scaledImage(4);
+			}
+		});
+		btnScale4.setBounds(154, 11, 70, 23);
+		pnlImgControls.add(btnScale4);
+		
+		JButton btnScale8 = new JButton("X 8");
+		btnScale8.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnScale8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				handler.scaledImage(8);
+			}
+		});
+		btnScale8.setBounds(234, 11, 70, 23);
+		pnlImgControls.add(btnScale8);
+		
+		JButton btnOriginal = new JButton("Original");
+		btnOriginal.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnOriginal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				handler.MapToPanel();
+			}
+		});
+		btnOriginal.setBounds(154, 45, 70, 23);
+		pnlImgControls.add(btnOriginal);
+		
+		JButton btnScale16 = new JButton("X 16");
+		btnScale16.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnScale16.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				handler.scaledImage(16);
+			}
+		});
+		btnScale16.setBounds(74, 45, 70, 23);
+		pnlImgControls.add(btnScale16);
+		
+		pnlImgControls.setVisible(false);
 	}
+	
 
 	public GUIHandler getHandler() {
 		return handler;

@@ -1,5 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Maker\'s Land</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="newWorld">New World</string>
+    <string name="options">Options</string>
+    <string name="exit">Exit</string>
+    <string name="maceman">Maceman</string>
+    <string name="loadWorld">Load World</string>
+    <string name="title_activity_game">Game</string>
 
 </resources>

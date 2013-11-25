@@ -11,7 +11,7 @@ public class Tile {
 	}
 
 	private float depth;
-	private int posX, posY, tileWidth, tileHeight, tileID;
+	private int posX, posY, tileSize, tileID;
 	private Type type;
 
 	public Tile(float depth, int x, int y, int width, int height, Type type) {
@@ -19,8 +19,7 @@ public class Tile {
 		this.depth = depth;
 		this.posX = x;
 		this.posY = y;
-		this.tileWidth = width;
-		this.tileHeight = height;
+
 		this.type = type;
 	}
 
@@ -29,8 +28,6 @@ public class Tile {
 		this.depth = depth;
 		this.posX = x;
 		this.posY = y;
-		tileWidth = 1;
-		tileHeight = 1;
 
 		if (depth < 0.1) {
 			type = Type.BLACK_WATER;
@@ -58,14 +55,10 @@ public class Tile {
 
 	}
 
-	public void draw(Canvas canvas, int x, int y, int width, int height, Paint paint) {
-		tileWidth = width;
-		tileHeight = height;
-		posX = x;
-		posY = y;
-
+	public void draw(Canvas canvas,int x, int y, int _tileSize, Paint paint) {
+		tileSize = _tileSize;
 		paint.setColor(getColor());
-		canvas.drawRect(posX, posY, posX + tileWidth, posY +tileHeight, paint);
+		canvas.drawRect(x, y, x + tileSize, y + tileSize, paint);
 
 	}
 
@@ -93,37 +86,29 @@ public class Tile {
 		} else if (type == Type.SNOW) {
 			color = Color.rgb(255, 255, 255);
 		}// TODO
-		// } else if (type == Type.RIVER_SOURCE) {
-		// color = Color.CYAN;
-		// } else if (type == Type.RIVER) {
-		// color = Color.CYAN;
-		// } else if (type == Type.TOWNCENTER) {
-		// color = Color.orange;
-		// } else if (type == Type.ROAD) {
-		// color = Color.ORANGE;
-		// } else if (type == Type.BUILDING) {
-		// color = Color.RED;
-		// } else if (type == Type.WALL) {
-		// color = Color.BLACK;
-		// }
+			// } else if (type == Type.RIVER_SOURCE) {
+			// color = Color.CYAN;
+			// } else if (type == Type.RIVER) {
+			// color = Color.CYAN;
+			// } else if (type == Type.TOWNCENTER) {
+			// color = Color.orange;
+			// } else if (type == Type.ROAD) {
+			// color = Color.ORANGE;
+			// } else if (type == Type.BUILDING) {
+			// color = Color.RED;
+			// } else if (type == Type.WALL) {
+			// color = Color.BLACK;
+			// }
 
 		return color;
 	}
 
-	public int getWidth() {
-		return tileWidth;
+	public int getTileSize() {
+		return tileSize;
 	}
 
-	public void setWidth(int width) {
-		this.tileWidth = width;
-	}
-
-	public int getHeight() {
-		return tileHeight;
-	}
-
-	public void setHeight(int height) {
-		this.tileHeight = height;
+	public void setTileSize(int tileSize) {
+		this.tileSize = tileSize;
 	}
 
 	public Type getType() {

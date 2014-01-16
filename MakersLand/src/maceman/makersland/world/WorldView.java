@@ -3,28 +3,19 @@ package maceman.makersland.world;
 import java.util.Random;
 
 import maceman.makersland.engine.WorldThread;
-import maceman.makersland.entity.EntityManager;
-import maceman.makersland.system.systems.MovementSystem;
-import maceman.makersland.system.systems.RenderingSystem;
 import maceman.makersland.world.tile.Tile;
 import maceman.makersland.worldgen.WorldGenerator;
 import maceman.makersland.worldgen.noise.NoiseGenerator;
-import android.R.integer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Shader.TileMode;
 import android.support.v4.util.LruCache;
-import android.util.FloatMath;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.ViewDebug.IntToString;
 import android.widget.Toast;
 
 public class WorldView extends SurfaceView implements SurfaceHolder.Callback {

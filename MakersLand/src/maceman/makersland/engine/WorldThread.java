@@ -1,15 +1,11 @@
 package maceman.makersland.engine;
 
 import android.graphics.Canvas;
-import maceman.makersland.system.systems.MovementSystem;
-import maceman.makersland.system.systems.RenderingSystem;
 import maceman.makersland.world.WorldView;
 
 public class WorldThread extends Thread{
 	
 	private WorldView mWorldView;
-	private RenderingSystem mRenderingSystem;
-	private MovementSystem mMovementSystem;
 	
 	public Boolean mRun = false;
 	

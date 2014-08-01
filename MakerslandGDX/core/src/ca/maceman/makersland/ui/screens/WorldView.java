@@ -174,7 +174,7 @@ public class WorldView extends AbstractScreen {
 		terrainInstance = new ModelInstance(terrain.getTerrainModel());
 		
 		/* Generate a bunch of random placeholders */
-		for (int x = 0; x < 1000; x++) {
+		for (int x = 0; x < 5; x++) {
 
 			Vector3 v = new Vector3(MathUtils.random((TerrainChunk.width - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height - 1) * terrain.getScale()));
 

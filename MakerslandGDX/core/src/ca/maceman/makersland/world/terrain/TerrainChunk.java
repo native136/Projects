@@ -30,8 +30,8 @@ public class TerrainChunk {
 
 	private Terrain parent;
 	
-	public static final short height = 180;
-	public static final short width = 180;
+	public static final short height = 40;
+	public static final short width = 40;
 
 	public TerrainChunk(Terrain parent, int octave, int octaveCount, float scale,
 			float strength, int posX, int posZ, int borderSize, boolean isIsland) {
@@ -81,8 +81,8 @@ public class TerrainChunk {
 
 				// POSITION
 				vertices[idx++] = ((posX * width) * scale) + (scale * x);
-				vertices[idx++] = (float) Math.round(chunkDepths[x][z]*strength*scale);
-				parent.heightMap[x+(width*posX)][z+(width*posZ)] =  (float) Math.round(chunkDepths[x][z]*strength*scale);
+				vertices[idx++] = (float) Math.round(Math.pow((1+chunkDepths[x][z]),strength));
+				parent.heightMap[x+(width*posX)][z+(width*posZ)] =  (float) Math.round(Math.pow((1+chunkDepths[x][z]),strength));
 				vertices[idx++] = ((posZ * height) * scale) + (scale * z);
 
 				// NORMAL, skip these for now
@@ -333,20 +333,20 @@ public class TerrainChunk {
 //					octaveCount);
 //		}
 //	}
-//	public TerrainChunk(float[][] depths,float scale,float strength, int posX, int posZ) {
-//	this.depths = depths;
-//	this.scale = scale;
-//	this.strength = strength;
-//	this.posX = posX;
-//	this.posZ = posZ;
-//	this.vertices = new float[(width + 1) * (height + 1) * vertexSize];
-//	this.indices = new short[width * height * 6];
-//
+	public TerrainChunk(float[][] chunksDepths,float scale,float strength, int posX, int posZ) {
+	this.chunkDepths = chunksDepths;
+	this.scale = scale;
+	this.strength = strength;
+	this.posX = posX;
+	this.posZ = posZ;
+	this.vertices = new float[(width + 1) * (height + 1) * VERTEX_SIZE];
+	this.indices = new short[width * height * 6];
+
 //	buildHeightmap();
-//	buildIndices();
-//	buildVertices();
-//
-//	calcNormals(indices, vertices);
-//
-//}
+	buildIndices();
+	buildVertices();
+
+	calcNormals(indices, vertices);
+
+}
 }

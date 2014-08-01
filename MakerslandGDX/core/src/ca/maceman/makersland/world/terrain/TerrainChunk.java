@@ -81,8 +81,8 @@ public class TerrainChunk {
 
 				// POSITION
 				vertices[idx++] = ((posX * width) * scale) + (scale * x);
-				vertices[idx++] = (float) Math.round((Math.pow(1 + chunkDepths[x][z],strength)));
-				parent.heightMap[x+(width*posX)][z+(width*posZ)] = (float) Math.round((Math.pow(1 + chunkDepths[x][z], strength)));
+				vertices[idx++] = (float) Math.round(chunkDepths[x][z]*strength*scale);
+				parent.heightMap[x+(width*posX)][z+(width*posZ)] =  (float) Math.round(chunkDepths[x][z]*strength*scale);
 				vertices[idx++] = ((posZ * height) * scale) + (scale * z);
 
 				// NORMAL, skip these for now

@@ -77,7 +77,7 @@ public class Terrain {
 				chunks[c] = new TerrainChunk(this, octaves, octaveCount, scale,
 						strength, x, z, chunkBorderWidth, isIsland);
 
-				Mesh mesh = new Mesh(false, chunks[c].vertices.length / 3,
+				Mesh mesh = new Mesh(false, chunks[c].vertices.length ,
 						chunks[c].indices.length,
 						new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
 						new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE),

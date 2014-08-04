@@ -1,6 +1,7 @@
 package ca.maceman.makersland.world.terrain.cell;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class Cell {
@@ -11,8 +12,12 @@ public class Cell {
 	private Vector3 corner4;
 	private Vector3 leftNormal;
 	private Vector3 rightNormal;
-	private Color color;
-	
+	private Color color1;
+	private Color color2;
+	private Color color3;
+	private Color color4;
+	private Vector2 texturePos;
+		
 	/**
 	 * @param corner1
 	 * @param corner2
@@ -21,16 +26,31 @@ public class Cell {
 	 * @param faceNormal
 	 * @param color
 	 */
-	public Cell(Vector3 corner1, Vector3 corner2, Vector3 corner3, Vector3 corner4, Vector3 faceNormal, Color color) {
+	public Cell(Vector3 corner1, Vector3 corner2, Vector3 corner3, Vector3 corner4, Vector3 leftNormal,Vector3 rightNormal, Color color1, Color color2, Color color3, Color color4) {
 		super();
 		this.corner1 = corner1;
 		this.corner2 = corner2;
 		this.corner3 = corner3;
 		this.corner4 = corner4;
-		this.faceNormal = faceNormal;
-		this.color = color;
+		this.leftNormal = leftNormal;
+		this.rightNormal = rightNormal;
 	}
 
+	public Cell(Vector3 corner1, Vector3 corner2, Vector3 corner3, Vector3 corner4, Vector3 leftNormal,Vector3 rightNormal, Color color1, Color color2, Color color3, Color color4, Vector2 texturePos) {
+		super();
+		this.corner1 = corner1;
+		this.corner2 = corner2;
+		this.corner3 = corner3;
+		this.corner4 = corner4;
+		this.leftNormal = leftNormal;
+		this.rightNormal = rightNormal;
+		this.texturePos = texturePos;
+		this.color1 = color1;
+		this.color2 = color2;
+		this.color3 = color3;
+		this.color4 = color4;
+	}
+	
 	public Vector3 getCorner1() {
 		return corner1;
 	}
@@ -63,19 +83,59 @@ public class Cell {
 		this.corner4 = corner4;
 	}
 
-	public Vector3 getFaceNormal() {
-		return faceNormal;
+	public Vector3 getLeftNormal() {
+		return leftNormal;
 	}
 
-	public void setFaceNormal(Vector3 faceNormal) {
-		this.faceNormal = faceNormal;
+	public void setLeftNormal(Vector3 leftNormal) {
+		this.leftNormal = leftNormal;
 	}
 
-	public Color getColor() {
-		return color;
+	public Vector3 getRightNormal() {
+		return rightNormal;
 	}
 
-	public void setColor(Color color) {
-		this.color = color;
+	public void setRightNormal(Vector3 rightNormal) {
+		this.rightNormal = rightNormal;
+	}
+
+	public Vector2 getTexturePos() {
+		return texturePos;
+	}
+
+	public void setTexturePos(Vector2 texturePos) {
+		this.texturePos = texturePos;
+	}
+
+	public Color getColor1() {
+		return color1;
+	}
+
+	public void setColor1(Color leftColor) {
+		this.color1 = leftColor;
+	}
+
+	public Color getColor2() {
+		return color2;
+	}
+
+	public void setColor2(Color rightColor) {
+		this.color2 = rightColor;
+	}
+
+	public Color getColor3() {
+		return color3;
+	}
+
+	public void setColor3(Color color3) {
+		this.color3 = color3;
+	}
+
+	public Color getColor4() {
+		return color4;
+	}
+
+	public void setColor4(Color color4) {
+		this.color4 = color4;
 	}
 }

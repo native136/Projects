@@ -1,5 +1,8 @@
 package ca.maceman.makersland.world.terrain;
 
+import ca.maceman.makersland.world.generator.NoiseGenerator;
+import ca.maceman.makersland.world.terrain.cell.Cell;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -12,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.sun.javafx.scene.control.skin.CellSkinBase;
 
 /**
  * Holds the Terrain information and model.
@@ -35,6 +39,10 @@ public class Terrain {
 	private TerrainChunk[] chunks;
 
 	public float[][] heightMap;
+
+	private int octave;
+
+	private int borderSize;
 
 	/**
 	 * Creates a new custom Terrain
@@ -69,110 +77,134 @@ public class Terrain {
 		MeshBuilder meshBuilder = new MeshBuilder();
 
 		int chunksNeeded = chunksWidth * chunksHeight;
-
 		chunks = new TerrainChunk[chunksNeeded];
 
-		heightMap = new float[(chunksWidth * TerrainChunk.width) + 1][(chunksHeight * TerrainChunk.height) + 1];
+		buildHeightmap();
+
 		/* stitch chunks toghether */
 		modelBuilder.begin();
 
 		int c = 0;
+		// left triangle
+		VertexInfo v1 = new VertexInfo();
+		VertexInfo v2 = new VertexInfo();
+		VertexInfo v3 = new VertexInfo();
+
+		// right triangle
+		VertexInfo v4 = new VertexInfo();
+		VertexInfo v5 = new VertexInfo();
+		VertexInfo v6 = new VertexInfo();
 		for (int z = 0; z < chunksHeight; z++) {
 			for (int x = 0; x < chunksWidth; x++) {
 
-				chunks[c] = new TerrainChunk(this, octaves, octaveCount, scale,
-						strength, x, z, chunkBorderWidth, isIsland);
-				//
-				// Mesh mesh = new Mesh(false, chunks[c].vertices.length ,
-				// chunks[c].indices.length,
-				// new VertexAttribute(Usage.Position, 3,
-				// ShaderProgram.POSITION_ATTRIBUTE),
-				// new VertexAttribute(Usage.Normal, 3,
-				// ShaderProgram.NORMAL_ATTRIBUTE),
-				// new VertexAttribute(Usage.ColorPacked, 4,
-				// ShaderProgram.COLOR_ATTRIBUTE),
-				// new VertexAttribute(Usage.TextureCoordinates, 2,
-				// ShaderProgram.TEXCOORD_ATTRIBUTE));
-				// mesh.setVertices(chunks[c].vertices);
-				// mesh.setIndices(chunks[c].indices);
-				//
-				// modelBuilder.node();
-				// modelBuilder.part("chunk" + Integer.toString(x) + "-" +
-				// Integer.toString(z),
-				// mesh,
-				// GL20.GL_TRIANGLES,
-				// new Material());
 				meshBuilder.begin(Usage.Position | Usage.Normal | Usage.ColorPacked | Usage.TextureCoordinates, GL20.GL_TRIANGLES);
-				int v = chunks[c].vertices.length - (9 * TerrainChunk.width) - 9 - 1;
-				int vx = 0;
-				int vy = 1;
-				int vz = 2;
-				int nx = 3;
-				int ny = 4;
-				int nz = 5;
-				int vc = 6;
-				int vu = 7;
-				int vv = 8;
-				VertexInfo v1 = new VertexInfo();
-				VertexInfo v2 = new VertexInfo();
-				VertexInfo v3 = new VertexInfo();
-				VertexInfo v4 = new VertexInfo();
-				// 0x-1y-2z-3nx-4ny-5nz-6c-7u-8v
-				for (int j = 0; j <= v; j += 9) {
-					vx = 0 + j;
-					vy = 1 + j;
-					vz = 2 + j;
-					nx = 3 + j;
-					ny = 4 + j;
-					nz = 5 + j;
-					vc = 6 + j;
-					vu = 7 + j;
-					vv = 8 + j;
+				chunks[c] = new TerrainChunk(heightMap, scale,
+						strength, x, z, chunkBorderWidth, isIsland);
+				for (Cell[] cellrow : chunks[c].cells) {
+					for (Cell cell : cellrow) {
+////						if (cell.getColor3().toFloatBits() == cell.getColor4().toFloatBits()
+////								&& cell.getColor3().toFloatBits() == cell.getColor2().toFloatBits()
+////								&& cell.getColor2().toFloatBits() == cell.getColor4().toFloatBits()
+////										&& cell.getColor3().toFloatBits() != cell.getColor1().toFloatBits()
+////								) {
+//							v1.setPos(cell.getCorner3()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//							v2.setPos(cell.getCorner2()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//							v3.setPos(cell.getCorner4()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//
+//							v4.setPos(cell.getCorner1()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//							v5.setPos(cell.getCorner4()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//							v6.setPos(cell.getCorner2()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//
+//							meshBuilder.triangle(v1, v2, v3);
+//							meshBuilder.triangle(v4, v5, v6);
+//						} else if (cell.getColor1().toFloatBits() == cell.getColor4().toFloatBits()
+//								&& cell.getColor1().toFloatBits() == cell.getColor2().toFloatBits()
+//								&& cell.getColor2().toFloatBits() == cell.getColor4().toFloatBits()
+//										&& cell.getColor1().toFloatBits() != cell.getColor3().toFloatBits()) {
+//							v1.setPos(cell.getCorner3()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//							v2.setPos(cell.getCorner2()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//							v3.setPos(cell.getCorner4()).setNor(cell.getLeftNormal()).setCol(cell.getColor3()).setUV(cell.getTexturePos());
+//
+//							v4.setPos(cell.getCorner1()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//							v5.setPos(cell.getCorner4()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//							v6.setPos(cell.getCorner2()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+//
+//							meshBuilder.triangle(v1, v2, v3);
+//							meshBuilder.triangle(v4, v5, v6);
+//						} else if (cell.getColor2().toFloatBits() == cell.getColor1().toFloatBits()
+//								&& cell.getColor2().toFloatBits() == cell.getColor3().toFloatBits()
+//								&& cell.getColor3().toFloatBits() == cell.getColor1().toFloatBits()
+//										&& cell.getColor2().toFloatBits() != cell.getColor4().toFloatBits()) {
+//							v1.setPos(cell.getCorner1()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//							v2.setPos(cell.getCorner3()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//							v3.setPos(cell.getCorner2()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//
+//							v4.setPos(cell.getCorner3()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//							v5.setPos(cell.getCorner1()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//							v6.setPos(cell.getCorner4()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//
+//							meshBuilder.triangle(v1, v2, v3);
+//							meshBuilder.triangle(v4, v5, v6);
+//						}else if (cell.getColor4().toFloatBits() == cell.getColor1().toFloatBits()
+//								&& cell.getColor4().toFloatBits() == cell.getColor3().toFloatBits()
+//								&& cell.getColor3().toFloatBits() == cell.getColor1().toFloatBits()
+//										&& cell.getColor4().toFloatBits() != cell.getColor2().toFloatBits()) {
+//							v1.setPos(cell.getCorner1()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//							v2.setPos(cell.getCorner3()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//							v3.setPos(cell.getCorner2()).setNor(cell.getLeftNormal()).setCol(cell.getColor2()).setUV(cell.getTexturePos());
+//
+//							v4.setPos(cell.getCorner4()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//							v5.setPos(cell.getCorner3()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//							v6.setPos(cell.getCorner1()).setNor(cell.getRightNormal()).setCol(cell.getColor4()).setUV(cell.getTexturePos());
+//
+//							meshBuilder.triangle(v1, v2, v3);
+//							meshBuilder.triangle(v4, v5, v6); 
+//						}else {
+							v1.setPos(cell.getCorner1()).setNor(cell.getLeftNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+							v2.setPos(cell.getCorner3()).setNor(cell.getLeftNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+							v3.setPos(cell.getCorner2()).setNor(cell.getLeftNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
 
-					v1 = new VertexInfo().setPos(chunks[c].vertices[vx], chunks[c].vertices[vy], chunks[c].vertices[vz])
-							.setNor(chunks[c].vertices[nx], chunks[c].vertices[ny], chunks[c].vertices[nz])
-							.setCol(new Color((int) chunks[c].vertices[vc]))
-							.setUV(chunks[c].vertices[vu], chunks[c].vertices[vv]);
-					vx += 9;
-					vz += 9;
-					vy += 9;
-					v2 = new VertexInfo().setPos(chunks[c].vertices[vx], chunks[c].vertices[vy], chunks[c].vertices[vz] + scale)
-							.setNor(chunks[c].vertices[nx], chunks[c].vertices[ny], chunks[c].vertices[nz])
-							.setCol(new Color((int) chunks[c].vertices[vc]))
-							.setUV(chunks[c].vertices[vu], chunks[c].vertices[vv]);
+							v4.setPos(cell.getCorner4()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+							v5.setPos(cell.getCorner3()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
+							v6.setPos(cell.getCorner1()).setNor(cell.getRightNormal()).setCol(cell.getColor1()).setUV(cell.getTexturePos());
 
-					vx += (9 * TerrainChunk.width);
-					vz += (9 * TerrainChunk.width);
-					vy += (9 * TerrainChunk.width);
-					v3 = new VertexInfo().setPos(chunks[c].vertices[vx] + scale, chunks[c].vertices[vy], chunks[c].vertices[vz] + scale)
-							.setNor(chunks[c].vertices[nx], chunks[c].vertices[ny], chunks[c].vertices[nz])
-							.setCol(new Color((int) chunks[c].vertices[vc]))
-							.setUV(chunks[c].vertices[vu], chunks[c].vertices[vv]);
+							meshBuilder.triangle(v1, v2, v3);
+							meshBuilder.triangle(v4, v5, v6);
 
-					vx -= 9;
-					vz -= 9;
-					vy -= 9;
-					v4 = new VertexInfo().setPos(chunks[c].vertices[vx] + scale, chunks[c].vertices[vy], chunks[c].vertices[vz])
-							.setNor(chunks[c].vertices[nx], chunks[c].vertices[ny], chunks[c].vertices[nz])
-							.setCol(new Color((int) chunks[c].vertices[vy],(int) chunks[c].vertices[vy],(int) chunks[c].vertices[vy],255))
-							.setUV(chunks[c].vertices[vu], chunks[c].vertices[vv]);
-
-					modelBuilder.node();
-					// meshBuilder.rect(v1, v2,v3,v4);
-					meshBuilder.triangle(v1, v2, v3);
-					meshBuilder.triangle(v3, v4, v1);
-
+//						}
+					}
 				}
 				Mesh mesh = meshBuilder.end();
-				modelBuilder.part("chunk" + Integer.toString(c) + "-" + Integer.toString(c),
+				modelBuilder.part("chunk" + Integer.toString(x) + "." + Integer.toString(z),
 						mesh,
-						GL20.GL_LINES,
+						GL20.GL_TRIANGLES,
 						new Material());
 
 				c++;
 			}
 		}
+
 		terrainModel = modelBuilder.end();
+	}
+
+	public void buildHeightmap() {
+		if (isIsland) {
+			heightMap = NoiseGenerator.GeneratePerlinNoise(NoiseGenerator
+					.GenerateSmoothNoise(NoiseGenerator
+							.GenerateRadialWhiteNoise(
+									(chunksWidth * TerrainChunk.width) + 1,
+									(chunksHeight * TerrainChunk.height) + 1),
+
+							octave), octaveCount);
+		} else {
+			heightMap = NoiseGenerator.GeneratePerlinNoise(NoiseGenerator
+					.GenerateSmoothNoise(NoiseGenerator.GenerateWhiteNoise(
+							(chunksWidth * TerrainChunk.width) + 1,
+							(chunksHeight * TerrainChunk.height) + 1,
+							borderSize),
+							octave),
+					octaveCount);
+		}
 	}
 
 	public float getTerrainHeight(float xPos, float zPos) {
@@ -205,7 +237,7 @@ public class Terrain {
 			height += (triZ1 - triZ3) * (1.0f - sqZ);
 			height += (triZ2 - triZ3) * (1.0f - sqX);
 		}
-		return height;
+		return (float) Math.pow(1 + height, strength);
 	}
 
 	public float getHeight(float x, float z) {

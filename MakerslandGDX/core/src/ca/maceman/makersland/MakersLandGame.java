@@ -15,7 +15,7 @@ public class MakersLandGame extends Game {
 
 	public void create () {
 		debugInGameScreen = new TerrainDebugScreen(this);
-		worldView = new WorldView(new Terrain(1, 6, 4.5f, 10, 1, 1,1,true));
+		worldView = new WorldView(new Terrain(1, 6, 4.5f, 10, 3, 3,1,true));
 	}
 
 	@Override

@@ -174,9 +174,9 @@ public class WorldView extends AbstractScreen {
 		terrainInstance = new ModelInstance(terrain.getTerrainModel());
 		
 		/* Generate a bunch of random placeholders */
-		for (int x = 0; x < 5; x++) {
+		for (int x = 0; x < 50; x++) {
 
-			Vector3 v = new Vector3(MathUtils.random((TerrainChunk.width - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height - 1) * terrain.getScale()));
+			Vector3 v = new Vector3(MathUtils.random(((TerrainChunk.width*terrain.getChunksWidth()) - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height*terrain.getChunksWidth() - 1) * terrain.getScale()));
 
 			v.add(0, (float) terrain.getHeight(v.x, v.y), 0);
 
@@ -200,8 +200,8 @@ public class WorldView extends AbstractScreen {
 
 	private void prepareEnvironment() {
 		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.2f, 0.2f, 0.2f, 1f));
-		environment.add(new DirectionalLight().set(1f, 1f, 1f, -60f, -60f, 60f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.5f, 0.5f, 0.5f, 1f));
+		environment.add(new DirectionalLight().set(.9f, .9f, .9f, 100f, -100f, 100f));
 	}
 
 	private void prepareCam() {

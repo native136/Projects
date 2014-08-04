@@ -35,7 +35,7 @@ public class GameObject extends ModelInstance {
 			
 			moving = true;
 			distanceToDest =  (float) Math.sqrt(Math.pow(destination.x-position.x,2)+Math.pow(destination.y-position.y,2));
-			if (distanceToDest<1){
+			if (distanceToDest<0.01f){
 				position=destination;
 				moving = false;
 			}

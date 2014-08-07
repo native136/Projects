@@ -1,6 +1,5 @@
 package ca.maceman.makersland;
 
-import ca.maceman.makersland.ui.screens.TerrainDebugScreen;
 import ca.maceman.makersland.ui.screens.WorldView;
 import ca.maceman.makersland.world.terrain.Terrain;
 
@@ -10,11 +9,9 @@ import com.badlogic.gdx.graphics.GL20;
 
 public class MakersLandGame extends Game {
 	
-	private TerrainDebugScreen debugInGameScreen;
 	private WorldView worldView;
 
 	public void create () {
-		debugInGameScreen = new TerrainDebugScreen(this);
 		worldView = new WorldView(new Terrain(1, 6, 4.5f, 10, 3, 3,1,true));
 	}
 
@@ -34,6 +31,6 @@ public class MakersLandGame extends Game {
 
 	@Override
 	public void dispose () {
-		debugInGameScreen.dispose();
+		worldView.dispose();
 	}
 }

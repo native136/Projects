@@ -4,9 +4,9 @@ import ca.maceman.makersland.world.actors.GameObject;
 import ca.maceman.makersland.world.actors.PlaceHolder;
 import ca.maceman.makersland.world.actors.collisionshapes.Shape;
 import ca.maceman.makersland.world.actors.collisionshapes.Sphere;
-import ca.maceman.makersland.world.generator.NoiseGenerator;
 import ca.maceman.makersland.world.terrain.Terrain;
 import ca.maceman.makersland.world.terrain.TerrainChunk;
+import ca.maceman.makersland.world.utils.generator.NoiseGenerator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -49,15 +49,8 @@ import com.badlogic.gdx.utils.Array;
  */
 public class WorldView extends AbstractScreen {
 
-	// debug menu
-	private Label fpsLabel, lblBorder, lblChunksHeight, lblChunksWidth,
-			lblOctaveCount, lblOctaves, lblScale, lblStrength;
-	private Skin skin;
-	private Slider sliderBorder, sliderChunksHeight, sliderChunksWidth,
-			sliderOctaveCount, sliderOctaves, sliderScale, sliderStrength;
-	private Stage stage;
-	private TextField txtSeed;
 	private boolean debug = true;
+	private TerrainDebugWindow terrainDebugWindow;
 
 	private Array<GameObject> gameObjectInstances;
 	private GameObject objectInHand;
@@ -78,10 +71,13 @@ public class WorldView extends AbstractScreen {
 	private Shape placeHolderShape;
 	private float time;
 
-	public WorldView( Terrain terrain) {
+	public WorldView(Terrain terrain) {
 		super();
 		this.terrain = terrain;
 
+		if (debug){
+			terrainDebugWindow = new TerrainDebugWindow(this);
+		}
 		create();
 		refreshModels();
 	}
@@ -106,7 +102,7 @@ public class WorldView extends AbstractScreen {
 		assets.load("data/spacesphere.obj", Model.class);
 		assets.finishLoading();
 		space = new ModelInstance(assets.get("data/spacesphere.obj", Model.class));
-		space.transform.scl(100);
+		space.transform.scl(200);
 
 		selectionMaterial = new Material();
 		selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
@@ -121,14 +117,14 @@ public class WorldView extends AbstractScreen {
 
 	@Override
 	public void render(float delta) {
-		
+
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		Gdx.graphics.getGL20().glClearColor(0.5f, 0.6f, 0.8f, 1);
-		
+
 		time += delta;
-		
+
 		camController.update();
 
 		worldModelBatch.begin(cam);
@@ -139,7 +135,7 @@ public class WorldView extends AbstractScreen {
 			Vector3 tmp = new Vector3();
 			goInstance.transform.getTranslation(tmp);
 			goInstance.move(delta);
-			goInstance.transform.setTranslation(goInstance.position.x, (float) terrain.getTerrainHeight(goInstance.position.x,goInstance.position.y)+1, goInstance.position.y);
+			goInstance.transform.setTranslation(goInstance.position.x, (float) terrain.getTerrainHeight(goInstance.position.x, goInstance.position.y) + 1, goInstance.position.y);
 
 			if (goInstance.isVisible(cam)) {
 				worldModelBatch.render(goInstance, environment);
@@ -148,52 +144,37 @@ public class WorldView extends AbstractScreen {
 		worldModelBatch.render(space);
 		worldModelBatch.end();
 
-		updateUI();
-
 		if (debug) {
-			stage.draw();
+			terrainDebugWindow.updateUI(time);
+			terrainDebugWindow.stage.draw();
 		}
-	}
-
-	/**
-	 * updates UI with new values
-	 */
-	private void updateUI() {
-		fpsLabel.setText("fps: " + Gdx.graphics.getFramesPerSecond() + " Time: " + Float.toString(Math.round(time)));
-		lblChunksWidth.setText("Chunks Width: " + sliderChunksWidth.getValue());
-		lblChunksHeight.setText("Chunks Height: " + sliderChunksHeight.getValue());
-		lblScale.setText("Scale: " + sliderScale.getValue());
-		lblOctaves.setText("Octave: " + sliderOctaves.getValue());
-		lblOctaveCount.setText("Octave Count: " + sliderOctaveCount.getValue());
-		lblStrength.setText("Strength: " + sliderStrength.getValue());
-		lblBorder.setText("Border: " + sliderBorder.getValue());
 	}
 
 	protected void refreshModels() {
 		gameObjectInstances = new Array<GameObject>();
 		terrainInstance = new ModelInstance(terrain.getTerrainModel());
-		
+
 		/* Generate a bunch of random placeholders */
 		for (int x = 0; x < 50; x++) {
 
-			Vector3 v = new Vector3(MathUtils.random(((TerrainChunk.width*terrain.getChunksWidth()) - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height*terrain.getChunksWidth() - 1) * terrain.getScale()));
+			Vector3 v = new Vector3(MathUtils.random(((TerrainChunk.width * terrain.getChunksWidth()) - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height * terrain.getChunksHeight() - 1) * terrain.getScale()));
 
 			v.add(0, (float) terrain.getHeight(v.x, v.y), 0);
 
 			GameObject unit = (new GameObject(new PlaceHolder(v.x, v.y, v.z).getModel(), v));
-			
-			unit.position = new Vector2(v.x,v.z);
-			
+
+			unit.position = new Vector2(v.x, v.z);
+
 			/* random destination */
 			unit.destination = new Vector2(MathUtils.random((TerrainChunk.width - 1) * terrain.getScale()), MathUtils.random((TerrainChunk.height - 1) * terrain.getScale()));
 
 			gameObjectInstances.add(unit);
-			
+
 			if (placeHolderShape == null) {
 				gameObjectInstances.get(x).calculateBoundingBox(bounds);
 				placeHolderShape = new Sphere(bounds);
 			}
-			
+
 			gameObjectInstances.get(x).shape = placeHolderShape;
 		}
 	}
@@ -218,122 +199,13 @@ public class WorldView extends AbstractScreen {
 
 	private void setupInput() {
 		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(stage);
+		multiplexer.addProcessor(terrainDebugWindow.stage);
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	private void prepareDebugMenu() {
-		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
-		stage = new Stage();
-		Table debugTable = new Table();
-		debugTable.row();
-
-		debugTable.layout();
-
-		final CheckBox cbIsland = new CheckBox("Island", skin);
-		cbIsland.setChecked(true);
-
-		txtSeed = new TextField("seed", skin);
-
-		lblChunksWidth = new Label("Chunks Width:", skin);
-		sliderChunksWidth = new Slider(1, 10, 1, false, skin);
-		sliderChunksWidth.setValue(1f);
-
-		lblChunksHeight = new Label("Chunks Length:", skin);
-		sliderChunksHeight = new Slider(1, 10, 1, false, skin);
-		sliderChunksHeight.setValue(1f);
-
-		lblOctaves = new Label("Octave:", skin);
-		sliderOctaves = new Slider(1, 10, 1, false, skin);
-
-		lblOctaveCount = new Label("Octave Count:", skin);
-		sliderOctaveCount = new Slider(1, 10, 1, false, skin);
-		sliderOctaveCount.setValue(6f);
-
-		lblStrength = new Label("Strength:", skin);
-		sliderStrength = new Slider(1, 20, 0.5f, false, skin);
-
-		lblScale = new Label("Scale:", skin);
-		sliderScale = new Slider(2, 128, 1f, false, skin);
-		sliderScale.setValue(8f);
-
-		lblBorder = new Label("Border:", skin);
-		sliderBorder = new Slider(0, 10, 1, false, skin);
-
-		Button buttonGenerate = new TextButton("Generate New World", skin);
-
-		fpsLabel = new Label("fps:", skin);
-
-		Window terrainDebugWindow = new Window("Terrain Debug", skin);
-		terrainDebugWindow.getButtonTable().add(new TextButton("X", skin)).height(terrainDebugWindow.getPadTop());
-
-		terrainDebugWindow.setPosition(0, 0);
-		terrainDebugWindow.defaults().spaceBottom(10);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(txtSeed);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(cbIsland);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(lblChunksWidth);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderChunksWidth);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblChunksHeight);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderChunksHeight);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblOctaves);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderOctaves);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblOctaveCount);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderOctaveCount);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblStrength);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderStrength);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblScale);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderScale);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(lblBorder);
-		terrainDebugWindow.row().fill().expandX();
-		terrainDebugWindow.add(sliderBorder);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(buttonGenerate);
-		terrainDebugWindow.row();
-		terrainDebugWindow.add(fpsLabel).colspan(4);
-		terrainDebugWindow.pack();
-
-		stage.addActor(terrainDebugWindow);
-
-		buttonGenerate.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				try {
-					NoiseGenerator.setSeed(Long.parseLong(txtSeed.getText()));
-				} catch (Exception e) {
-
-				}
-				terrain = new Terrain(
-						(int) sliderOctaves.getValue(),
-						(int) sliderOctaveCount.getValue(),
-						sliderStrength.getValue(),
-						sliderScale.getValue(),
-						(int) sliderChunksWidth.getValue(),
-						(int) sliderChunksHeight.getValue(),
-						(int) sliderBorder.getValue(),
-						cbIsland.isChecked());
-				stage.setKeyboardFocus(null);
-				refreshModels();
-			}
-		});
-
 	}
 
 	@Override
@@ -409,11 +281,89 @@ public class WorldView extends AbstractScreen {
 		return result;
 	}
 
-
-
 	@Override
 	public void resize(int width, int height) {
-		stage.getViewport().update(width, height, true);
+		terrainDebugWindow.stage.getViewport().update(width, height, true);
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public Array<GameObject> getGameObjectInstances() {
+		return gameObjectInstances;
+	}
+
+	public void setGameObjectInstances(Array<GameObject> gameObjectInstances) {
+		this.gameObjectInstances = gameObjectInstances;
+	}
+
+	public GameObject getObjectInHand() {
+		return objectInHand;
+	}
+
+	public void setObjectInHand(GameObject objectInHand) {
+		this.objectInHand = objectInHand;
+	}
+
+	public CameraInputController getCamController() {
+		return camController;
+	}
+
+	public void setCamController(CameraInputController camController) {
+		this.camController = camController;
+	}
+
+	public Environment getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	public ModelBatch getWorldModelBatch() {
+		return worldModelBatch;
+	}
+
+	public void setWorldModelBatch(ModelBatch worldModelBatch) {
+		this.worldModelBatch = worldModelBatch;
+	}
+
+	public ModelInstance getTerrainInstance() {
+		return terrainInstance;
+	}
+
+	public void setTerrainInstance(ModelInstance terrainInstance) {
+		this.terrainInstance = terrainInstance;
+	}
+
+	public PerspectiveCamera getCam() {
+		return cam;
+	}
+
+	public void setCam(PerspectiveCamera cam) {
+		this.cam = cam;
+	}
+
+	public Terrain getTerrain() {
+		return terrain;
+	}
+
+	public void setTerrain(Terrain terrain) {
+		this.terrain = terrain;
+	}
+
+	public float getTime() {
+		return time;
+	}
+
+	public void setTime(float time) {
+		this.time = time;
 	}
 
 	@Override

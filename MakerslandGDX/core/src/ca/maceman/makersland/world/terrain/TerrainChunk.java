@@ -8,48 +8,55 @@ import com.badlogic.gdx.math.Vector3;
 
 /**
  * Part of the terrain model is generated here. Creates different landscapes
- * based on the values given.
+ * based on the values given. Creates an 2D array of Cells.
  * 
  * @author andy.masse
  * 
  */
 public class TerrainChunk {
 
-	private boolean isIsland = false;
-
+	public Cell[][] cells;
+	
 	private float scale;
 	private float strength;
-
-	private int borderSize;
-	private int octave;
-	private int octaveCount;
+	private float[][] chunkDepths;
 	private int posX;
 	private int posZ;
 
-	public Cell[][] cells;
-	public float[][] chunkDepths;
+	private Vector3 p1;
+	private Vector3 p2;
+	private Vector3 p3;
+	private Vector3 p4;
+	
+	private Vector3 n1;
+	private Vector3 n2;
+	
+	private Color c1;
+	private Color c2;
+	private Color c3;
+	private Color c4;
+	
+	private float u = 0;
+	private float v = 0;
 
-	private Terrain parent;
+	
+	/* 70 is used as it is a nice round number and allows for less than the maximum amount of vertices(32,767) in a mesh. 
+	 * Every triangle has 3 unique vertices, every square has 2 triangles. (70 * 70 * 6) =  29,400
+	 */
+	public static final short height = 70;
+	public static final short width = 70;
 
-	public static final short height = 40;
-	public static final short width = 40;
-
-	public TerrainChunk(Terrain parent, int octave, int octaveCount, float scale,
-			float strength, int posX, int posZ, int borderSize, boolean isIsland) {
-
-		this.parent = parent;
-		this.octave = octave;
-		this.octaveCount = octaveCount;
-		this.scale = scale;
-		this.strength = strength;
-		this.posX = posX;
-		this.posZ = posZ;
-		this.borderSize = borderSize;
-		this.isIsland = isIsland;
-		this.cells = new Cell[width][height];
-
-	}
-
+	/**
+	 * Creates a Terrain Chunk
+	 * 
+	 * @param chunksDepths
+	 * @param scale
+	 * @param strength
+	 * @param posX
+	 * @param posZ
+	 * @param borderSize
+	 * @param isIsland
+	 */
 	public TerrainChunk(float[][] chunksDepths, float scale, float strength,
 			int posX, int posZ, int borderSize, boolean isIsland) {
 		this.chunkDepths = chunksDepths;
@@ -57,8 +64,6 @@ public class TerrainChunk {
 		this.strength = strength;
 		this.posX = posX;
 		this.posZ = posZ;
-		this.borderSize = borderSize;
-		this.isIsland = isIsland;
 		this.cells = new Cell[width][height];
 
 		buildVertices();
@@ -66,24 +71,9 @@ public class TerrainChunk {
 	}
 
 	public void buildVertices() {
-		int heightPitch = height;
-		int widthPitch = width;
 
-		Vector3 p1;
-		Vector3 p2;
-		Vector3 p3;
-		Vector3 p4;
-		Vector3 n1;
-		Vector3 n2;
-		Color c1;
-		Color c2;
-		Color c3;
-		Color c4;
-		float u = 0;
-		float v = 0;
-
-		for (int x = 0; x < widthPitch; x++) {
-			for (int z = 0; z < heightPitch; z++) {
+		for (int x = 0; x < width; x++) {
+			for (int z = 0; z < height; z++) {
 
 				/* o--o
 				 * |  |
@@ -140,9 +130,9 @@ public class TerrainChunk {
 			c = new Color(0, .3f, .5f, 1);
 		} else if (f > .1 && f <= .2) {
 			c = new Color(0, .5f, .79f, 1);
-		} else if (f > .2 && f <= .3) {
+		} else if (f > .2 && f <= .25) {
 			c = new Color(.7f, .6f, .3f, 1);
-		} else if (f > .3 && f <= .4) {
+		} else if (f > .25 && f <= .4) {
 			c = new Color(0, .45f, 0, 1);
 		} else if (f > .4 && f <= .6) {
 			c = new Color(0, .2f, 0, 1);

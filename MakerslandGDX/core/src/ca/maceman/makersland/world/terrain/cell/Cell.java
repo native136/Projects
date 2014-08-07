@@ -4,6 +4,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * Holds the data for a tile on the terrain.
+ * 
+ * @author andy.masse
+ *
+ */
 public class Cell {
 
 	private Vector3 corner1;
@@ -111,16 +117,16 @@ public class Cell {
 		return color1;
 	}
 
-	public void setColor1(Color leftColor) {
-		this.color1 = leftColor;
+	public void setColor1(Color color1) {
+		this.color1 = color1;
 	}
 
 	public Color getColor2() {
 		return color2;
 	}
 
-	public void setColor2(Color rightColor) {
-		this.color2 = rightColor;
+	public void setColor2(Color color2) {
+		this.color2 = color2;
 	}
 
 	public Color getColor3() {

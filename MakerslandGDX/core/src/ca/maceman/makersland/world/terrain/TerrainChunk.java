@@ -1,6 +1,6 @@
 package ca.maceman.makersland.world.terrain;
 
-import ca.maceman.makersland.world.terrain.cell.Cell;
+import ca.maceman.makersland.world.terrain.Cell.CellType;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 public class TerrainChunk {
 
 	public Cell[][] cells;
-	
+
 	private float scale;
 	private float strength;
 	private float[][] chunkDepths;
@@ -27,19 +27,13 @@ public class TerrainChunk {
 	private Vector3 p2;
 	private Vector3 p3;
 	private Vector3 p4;
-	
+
 	private Vector3 n1;
 	private Vector3 n2;
-	
-	private Color c1;
-	private Color c2;
-	private Color c3;
-	private Color c4;
-	
+
 	private float u = 0;
 	private float v = 0;
 
-	
 	/* 70 is used as it is a nice round number and allows for less than the maximum amount of vertices(32,767) in a mesh. 
 	 * Every triangle has 3 unique vertices, every square has 2 triangles. (70 * 70 * 6) =  29,400
 	 */
@@ -79,7 +73,8 @@ public class TerrainChunk {
 				 * |  |
 				 * o--X
 				 */
-				p1 = new Vector3(((posX * width) * scale) + (scale * x),
+				p1 = new Vector3((
+						(posX * width) * scale) + (scale * x),
 						(float) Math.pow(1 + chunkDepths[(posX * width) + x][(posZ * height) + z], strength),
 						((posZ * height) * scale) + (scale * z));
 
@@ -87,14 +82,16 @@ public class TerrainChunk {
 				 * |  |
 				 * X--o
 				 */
-				p2 = new Vector3(((posX * width) * scale) + (scale * (x + 1)),
+				p2 = new Vector3((
+						(posX * width) * scale) + (scale * (x + 1)),
 						(float) Math.pow(1 + chunkDepths[(posX * width) + x + 1][(posZ * height) + z], strength),
 						((posZ * height) * scale) + (scale * z));
 				/* X--o
 				 * |  |
 				 * o--o
 				 */
-				p3 = new Vector3(((posX * width) * scale) + (scale * (x + 1)),
+				p3 = new Vector3((
+						(posX * width) * scale) + (scale * (x + 1)),
 						(float) Math.pow(1 + chunkDepths[(posX * width) + x + 1][(posZ * height) + z + 1], strength),
 						((posZ * height) * scale) + (scale * (z + 1)));
 
@@ -102,48 +99,34 @@ public class TerrainChunk {
 				 * |  |
 				 * o--o
 				 */
-				p4 = new Vector3(((posX * width) * scale) + (scale * x),
+				p4 = new Vector3((
+						(posX * width) * scale) + (scale * x),
 						(float) Math.pow(1 + chunkDepths[(posX * width) + x][(posZ * height) + z + 1], strength),
 						((posZ * height) * scale) + (scale * (z + 1)));
 
 				n1 = calcNormal(p1, p4, p2);
 				n2 = calcNormal(p3, p2, p4);
 
-				c1 = findColour(chunkDepths[(posX * width) + x][(posZ * height) + z]);
-				c2 = findColour(chunkDepths[(posX * width) + x + 1][(posZ * height) + z]);
-				c3 = findColour(chunkDepths[(posX * width) + x + 1][(posZ * height) + z + 1]);
-				c4 = findColour(chunkDepths[(posX * width) + x][(posZ * height) + z + 1]);
-
 				u = (x / (float) width);
 				v = (z / (float) height);
 
-				cells[x][z] = new Cell(p1, p2, p3, p4, n1, n2, c1, c2, c3, c4, new Vector2(u, v));
+				cells[x][z] = new Cell(p1, p2, p3, p4, n1, n2, getType(chunkDepths[(posX * width) + x][(posZ * height) + z]), new Vector2(u, v));
 
 			}
 		}
 	}
 
-	private Color findColour(float f) {
-		// COLOR
-		Color c = Color.BLACK;
-		if (f <= .1) {
-			c = new Color(0, .3f, .5f, 1);
-		} else if (f > .1 && f <= .2) {
-			c = new Color(0, .5f, .79f, 1);
-		} else if (f > .2 && f <= .25) {
-			c = new Color(.7f, .6f, .3f, 1);
-		} else if (f > .25 && f <= .4) {
-			c = new Color(0, .45f, 0, 1);
-		} else if (f > .4 && f <= .6) {
-			c = new Color(0, .2f, 0, 1);
-		} else if (f > .6 && f <= .7) {
-			c = new Color(.4f, .3f, .2f, 1);
-		} else if (f > .7 && f <= .8) {
-			c = new Color(.7f, .7f, .7f, 1);
-		} else if (f > .8) {
-			c = Color.WHITE;
+	private CellType getType(float f) {
+		CellType ct = CellType.DIRT;
+
+		if (f < .2) {
+			ct = CellType.SAND;
 		}
-		return c;
+		if (f > .7) {
+			ct = CellType.STONE;
+
+		}
+		return ct;
 	}
 
 	/*

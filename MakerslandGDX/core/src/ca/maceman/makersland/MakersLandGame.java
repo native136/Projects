@@ -12,7 +12,7 @@ public class MakersLandGame extends Game {
 	private WorldView worldView;
 
 	public void create () {
-		worldView = new WorldView(new Terrain(1, 6, 4.5f, 10, 3, 3,1,true));
+		worldView = new WorldView(new Terrain(1, 6, 8f, 10, 3, 3,1,true));
 	}
 
 	@Override

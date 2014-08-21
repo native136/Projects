@@ -14,6 +14,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -22,6 +23,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -53,29 +55,34 @@ public class WorldView extends AbstractScreen {
 	private TerrainDebugWindow terrainDebugWindow;
 
 	private Array<GameObject> gameObjectInstances;
-	private GameObject objectInHand;
-	private CameraInputController camController;
-	private Environment environment;
-	private ModelBatch worldModelBatch;
-	private ModelInstance terrainInstance;
-	private PerspectiveCamera cam;
-	private Terrain terrain;
 	private AssetManager assets;
-	private ModelInstance space;
-	private Vector3 position;
-
-	private int selected = -1, selecting = -1;
-	private Material selectionMaterial, originalMaterial;
 	private boolean dragged;
 	private BoundingBox bounds;
-	private Shape placeHolderShape;
+	private CameraInputController camController;
+	private Environment environment;
 	private float time;
+	private GameObject objectInHand;
+	private int selected = -1, selecting = -1;
+	private LandManipulationGUI landManipulationGUI;
+	private ModelBatch worldModelBatch;
+	private ModelInstance space;
+	private ModelInstance terrainInstance;
+	private PerspectiveCamera cam;
+	private Shape placeHolderShape;
+	private Terrain terrain;
+	private Vector3 position;
+
+	public ViewMode viewMode = ViewMode.Terrain;
+
+	public enum ViewMode {
+		Terrain
+	}
 
 	public WorldView(Terrain terrain) {
 		super();
 		this.terrain = terrain;
 
-		if (debug){
+		if (debug) {
 			terrainDebugWindow = new TerrainDebugWindow(this);
 		}
 		create();
@@ -101,13 +108,12 @@ public class WorldView extends AbstractScreen {
 		assets = new AssetManager();
 		assets.load("data/spacesphere.obj", Model.class);
 		assets.finishLoading();
+		
 		space = new ModelInstance(assets.get("data/spacesphere.obj", Model.class));
 		space.transform.scl(200);
 
-		selectionMaterial = new Material();
-		selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
-		originalMaterial = new Material();
-
+		ModelBuilder mb = new ModelBuilder();
+		
 		bounds = new BoundingBox();
 
 		position = new Vector3();
@@ -129,6 +135,7 @@ public class WorldView extends AbstractScreen {
 
 		worldModelBatch.begin(cam);
 
+		worldModelBatch.render(space);
 		worldModelBatch.render(terrainInstance, environment);
 
 		for (GameObject goInstance : gameObjectInstances) {
@@ -141,12 +148,16 @@ public class WorldView extends AbstractScreen {
 				worldModelBatch.render(goInstance, environment);
 			}
 		}
-		worldModelBatch.render(space);
 		worldModelBatch.end();
 
 		if (debug) {
 			terrainDebugWindow.updateUI(time);
 			terrainDebugWindow.stage.draw();
+		}
+		
+		if (viewMode == ViewMode.Terrain){
+			landManipulationGUI.refresh();
+			landManipulationGUI.stage.draw();
 		}
 	}
 
@@ -155,28 +166,34 @@ public class WorldView extends AbstractScreen {
 		terrainInstance = new ModelInstance(terrain.getTerrainModel());
 
 		/* Generate a bunch of random placeholders */
-		for (int x = 0; x < 50; x++) {
-
-			Vector3 v = new Vector3(MathUtils.random(((TerrainChunk.width * terrain.getChunksWidth()) - 1) * terrain.getScale()), 0, MathUtils.random((TerrainChunk.height * terrain.getChunksHeight() - 1) * terrain.getScale()));
-
-			v.add(0, (float) terrain.getHeight(v.x, v.y), 0);
-
-			GameObject unit = (new GameObject(new PlaceHolder(v.x, v.y, v.z).getModel(), v));
-
-			unit.position = new Vector2(v.x, v.z);
-
-			/* random destination */
-			unit.destination = new Vector2(MathUtils.random((TerrainChunk.width - 1) * terrain.getScale()), MathUtils.random((TerrainChunk.height - 1) * terrain.getScale()));
-
-			gameObjectInstances.add(unit);
-
-			if (placeHolderShape == null) {
-				gameObjectInstances.get(x).calculateBoundingBox(bounds);
-				placeHolderShape = new Sphere(bounds);
-			}
-
-			gameObjectInstances.get(x).shape = placeHolderShape;
-		}
+		// for (int x = 0; x < 50; x++) {
+		//
+		// Vector3 v = new Vector3(MathUtils.random(((TerrainChunk.width *
+		// terrain.getChunksWidth()) - 1) * terrain.getScale()), 0,
+		// MathUtils.random((TerrainChunk.height * terrain.getChunksHeight() -
+		// 1) * terrain.getScale()));
+		//
+		// v.add(0, (float) terrain.getHeight(v.x, v.y), 0);
+		//
+		// GameObject unit = (new GameObject(new PlaceHolder(v.x, v.y,
+		// v.z).getModel(), v));
+		//
+		// unit.position = new Vector2(v.x, v.z);
+		//
+		// /* random destination */
+		// unit.destination = new Vector2(MathUtils.random((TerrainChunk.width -
+		// 1) * terrain.getScale()), MathUtils.random((TerrainChunk.height - 1)
+		// * terrain.getScale()));
+		//
+		// gameObjectInstances.add(unit);
+		//
+		// if (placeHolderShape == null) {
+		// gameObjectInstances.get(x).calculateBoundingBox(bounds);
+		// placeHolderShape = new Sphere(bounds);
+		// }
+		//
+		// gameObjectInstances.get(x).shape = placeHolderShape;
+		// }
 	}
 
 	private void prepareEnvironment() {
@@ -198,8 +215,11 @@ public class WorldView extends AbstractScreen {
 	}
 
 	private void setupInput() {
+		landManipulationGUI = new LandManipulationGUI();
+
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(terrainDebugWindow.stage);
+		multiplexer.addProcessor(landManipulationGUI.stage);
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
@@ -210,75 +230,42 @@ public class WorldView extends AbstractScreen {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		selecting = getObject(screenX, screenY);
-		return selecting >= 0;
-	}
+		switch (viewMode) {
+		case Terrain:
+			landManipulationGUI.HandleTouchDown(screenX, screenY, pointer, button);
+			break;
 
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		if (selecting < 0)
-			return false;
-		if (selected == selecting) {
-			dragged = true;
-			Ray ray = cam.getPickRay(screenX, screenY);
-			final float distance = -ray.origin.y / ray.direction.y;
-			position.set(ray.direction).scl(distance).add(ray.origin);
-			objectInHand = gameObjectInstances.get(selected);
-			objectInHand.handled = true;
-			objectInHand.transform.setTranslation(new Vector3(position.x, (float) (terrain.getHeight(screenX, screenY) + 10), position.z));
-		}
-		return true;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (selected >= 0) {
-			Material mat = gameObjectInstances.get(selected).materials.get(0);
-
-			if (dragged) {
-				dragged = false;
-				gameObjectInstances.get(selected).transform.translate(0, (float) (terrain.getHeight(screenX, screenY) - 10), 0);
-				gameObjectInstances.get(selected).handled = false;
-			}
-			mat.clear();
-			mat.set(originalMaterial);
-		}
-		if (selecting >= 0) {
-			if (selecting == getObject(screenX, screenY)) {
-				setSelected(selecting);
-			}
-			selecting = -1;
-
-			return true;
+		default:
+			break;
 		}
 		return false;
 	}
 
-	public void setSelected(int value) {
-		if (selected == value)
-			return;
-		selected = value;
-		if (selected >= 0) {
-			Material mat = gameObjectInstances.get(selected).materials.get(0);
-			originalMaterial.clear();
-			originalMaterial.set(mat);
-			mat.clear();
-			mat.set(selectionMaterial);
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		switch (viewMode) {
+		case Terrain:
+			landManipulationGUI.HandleTouchDragged(screenX, screenY, pointer);
+			break;
+
+		default:
+			break;
 		}
+		return false;
+
 	}
 
-	public int getObject(int screenX, int screenY) {
-		Ray ray = cam.getPickRay(screenX, screenY);
-		int result = -1;
-		float distance = -1;
-		for (int i = 0; i < gameObjectInstances.size; ++i) {
-			final float dist2 = gameObjectInstances.get(i).intersects(ray);
-			if (dist2 >= 0f && (distance < 0f || dist2 <= distance)) {
-				result = i;
-				distance = dist2;
-			}
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		switch (viewMode) {
+		case Terrain:
+			landManipulationGUI.HandleTouchUp(screenX, screenY, pointer, button);
+			break;
+
+		default:
+			break;
 		}
-		return result;
+		return false;
 	}
 
 	@Override

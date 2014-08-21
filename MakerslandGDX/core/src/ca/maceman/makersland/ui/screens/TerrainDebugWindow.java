@@ -48,7 +48,7 @@ public class TerrainDebugWindow {
 	}
 
 	/**
-	 *  Builds the window
+	 * Builds the window
 	 */
 	private void setupWindow() {
 
@@ -102,7 +102,7 @@ public class TerrainDebugWindow {
 				worldView.setDebug(false);
 			}
 		});
-		
+
 		debugWindow.getButtonTable().add(btnX).height(debugWindow.getPadTop());
 
 		debugWindow.setPosition(0, 0);

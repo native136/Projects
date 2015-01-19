@@ -1,6 +1,6 @@
 package ca.maceman.makersland;
 
-import ca.maceman.makersland.ui.screens.WorldView;
+import ca.maceman.makersland.ui.screens.GameView;
 import ca.maceman.makersland.world.terrain.Terrain;
 
 import com.badlogic.gdx.Game;
@@ -8,29 +8,34 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 
 public class MakersLandGame extends Game {
-	
-	private WorldView worldView;
 
-	public void create () {
-		worldView = new WorldView(new Terrain(1, 6, 8f, 10, 3, 3,1,true));
-	}
+	private GameView gameView;
 
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		setScreen(worldView);
+	public void create() {
 		
-	    super.render();
+		gameView = new GameView(new Terrain(4, 5, 8f, 1, 5, 5, 0, true));
+		
+	}
+
+	@Override
+	public void render() {
+		
+		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		setScreen(gameView);
+		super.render();
 
 	}
 
 	@Override
-	public void resize (int width, int height) {
+	public void resize(int width, int height) {
+		
+		
 	}
 
 	@Override
-	public void dispose () {
-		worldView.dispose();
+	public void dispose() {
+		gameView.dispose();
 	}
 }

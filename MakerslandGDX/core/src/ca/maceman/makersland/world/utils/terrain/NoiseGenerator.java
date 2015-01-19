@@ -1,6 +1,8 @@
-package ca.maceman.makersland.world.utils.generator;
+package ca.maceman.makersland.world.utils.terrain;
 
 import java.util.Random;
+
+import ca.maceman.makersland.world.terrain.parts.TerrainTile;
 
 /**
  * Generates different kinds of noises for use in terrain generation.
@@ -48,7 +50,7 @@ public class NoiseGenerator {
 
 	public static float[][] GenerateRadialWhiteNoise(int width, int height) {
 		
-		int borderWidth = 10;
+		int borderWidth = (int) Math.floor(width / 10);
 		// new random
 		if (seed != 0) {
 			r = new Random(seed);
@@ -74,7 +76,10 @@ public class NoiseGenerator {
 					noise[i][j] = (float) 0;
 				} else {
 					noise[i][j] = (float) r.nextDouble()
-							- (distanceToCenter / 256);
+							- (distanceToCenter / 128);
+					if (noise[i][j] < 0){
+						noise[i][j] = 0;
+					}
 				}
 			}
 		}

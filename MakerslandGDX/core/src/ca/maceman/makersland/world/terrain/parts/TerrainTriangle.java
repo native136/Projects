@@ -44,6 +44,9 @@ public class TerrainTriangle {
 		normal = TerrainUtils.calcNormal(vRA.toVector3(), vAB.toVector3(), vAT.toVector3());
 
 		colour = new Color(.45f, .3f, .2f, 1f);
+		if(vRA.z <= 1){
+			colour = new Color(0f, 0f, 0f, 0f);
+		}
 
 		vi = new VertexInfo();
 

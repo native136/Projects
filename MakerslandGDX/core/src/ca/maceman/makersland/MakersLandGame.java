@@ -13,14 +13,14 @@ public class MakersLandGame extends Game {
 
 	public void create() {
 		
-		gameView = new GameView(new Terrain(4, 5, 8f, 1, 5, 5, 0, true));
+		gameView = new GameView(new Terrain(4, 5, 8f, 2, 5, 5, 0, true));
 		
 	}
 
 	@Override
 	public void render() {
 		
-		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
+		Gdx.gl.glClearColor(.3f, .55f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		setScreen(gameView);

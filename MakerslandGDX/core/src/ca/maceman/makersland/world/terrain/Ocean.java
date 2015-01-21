@@ -19,7 +19,7 @@ public class Ocean {
 	
 		ModelBuilder mb = new ModelBuilder();
 		
-		oceanModel = mb.createCylinder(10000f, 8, 10000f  , 30,  new Material(ColorAttribute.createDiffuse(Color.CYAN)),
+		oceanModel = mb.createCylinder(10000f, 50, 10000f  , 12,  new Material(ColorAttribute.createDiffuse(Color.TEAL)),
 		         Usage.Position | Usage.Normal | Usage.TextureCoordinates);
 		
 		

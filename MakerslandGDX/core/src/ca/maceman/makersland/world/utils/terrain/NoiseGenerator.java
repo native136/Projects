@@ -50,7 +50,7 @@ public class NoiseGenerator {
 
 	public static float[][] GenerateRadialWhiteNoise(int width, int height) {
 		
-		int borderWidth = (int) Math.floor(width / 10);
+		int borderWidth = (int) Math.floor(width / 4);
 		// new random
 		if (seed != 0) {
 			r = new Random(seed);

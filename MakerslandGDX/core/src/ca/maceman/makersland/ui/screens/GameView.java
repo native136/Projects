@@ -127,8 +127,8 @@ public class GameView extends AbstractScreen {
 	private void prepareCam() {
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0f, 0f, 1000f);
-		cam.near = 55f;
-		cam.far = 10000f;
+		cam.near = 10f;
+		cam.far = 1500f;
 		cam.lookAt(1000f, 1000f, 0f);
 		camController = new CameraInputController(cam);
 		camController.scrollFactor = 5f;

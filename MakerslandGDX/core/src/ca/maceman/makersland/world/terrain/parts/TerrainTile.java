@@ -7,7 +7,7 @@ public class TerrainTile {
 	 * |  |
 	 * 1--2
 	 */
-	public static final int TILE_SIZE = 10;
+	public static final int TILE_SIZE = 2;
 
 	private TerrainVector v1;
 	private TerrainVector v2;

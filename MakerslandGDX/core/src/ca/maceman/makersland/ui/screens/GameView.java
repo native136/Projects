@@ -1,28 +1,26 @@
 package ca.maceman.makersland.ui.screens;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 
+import ca.maceman.makersland.ui.screens.debug.TerrainDebugWindow;
+import ca.maceman.makersland.world.actor.GameObject;
 import ca.maceman.makersland.world.terrain.Ocean;
 import ca.maceman.makersland.world.terrain.Terrain;
 
 public class GameView extends AbstractScreen {
 
-
+	public boolean debug = true;
 	private CameraInputController camController;
 	private Environment environment;
 	private float time;
@@ -32,6 +30,8 @@ public class GameView extends AbstractScreen {
 	private PerspectiveCamera cam;
 	private Terrain terrain;
 	private Ocean ocean;
+	private TerrainDebugWindow terrainDebugWindow;
+	private ArrayList<GameObject> vModelList;
 
 	public GameView() {
 
@@ -39,18 +39,25 @@ public class GameView extends AbstractScreen {
 
 	public GameView(Terrain terrain) {
 		super();
+		vModelList = new ArrayList<GameObject>();
+		if (debug) {
+			terrainDebugWindow = new TerrainDebugWindow(this);
+		}
+
 		this.terrain = terrain;
-		this.ocean = new Ocean(1);
-		oceanInstance = new ModelInstance(ocean.oceanModel);
-		oceanInstance.transform.setToRotation(Vector3.X, 90);
+
+		ocean = new Ocean(5, terrain);
+		oceanInstance = ocean.oceanModelInstance;
+
 		create();
 		refreshModels();
 	}
 
-	private void refreshModels() {
+	public void refreshModels() {
 		terrainInstance = new ModelInstance(terrain.getTerrainModel());
-		
-
+		this.ocean = new Ocean(ocean.getSeaLevel(), terrain);
+		oceanInstance = ocean.oceanModelInstance;
+		vModelList = new ArrayList<GameObject>();
 	}
 
 	@Override
@@ -67,7 +74,19 @@ public class GameView extends AbstractScreen {
 		worldModelBatch.begin(cam);
 		worldModelBatch.render(oceanInstance, environment);
 		worldModelBatch.render(terrainInstance, environment);
+
+		for (GameObject mi : vModelList) {
+			if (mi.isVisible(cam)) {
+				worldModelBatch.render(mi);
+			}
+		}
+
 		worldModelBatch.end();
+
+		if (debug) {
+			terrainDebugWindow.updateUI(time);
+			terrainDebugWindow.stage.draw();
+		}
 	}
 
 	@Override
@@ -108,7 +127,6 @@ public class GameView extends AbstractScreen {
 
 		/* setup Camera */
 		prepareCam();
-
 		setupInput();
 
 		/* setup Builders and assets */
@@ -126,25 +144,39 @@ public class GameView extends AbstractScreen {
 
 	private void prepareCam() {
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(0f, 0f, 1000f);
-		cam.near = 10f;
-		cam.far = 1500f;
-		cam.lookAt(1000f, 1000f, 0f);
+		cam.position.set(1000f, 1000f, 200f);
+		cam.near = 1f;
+		cam.far = 10000f;
+		cam.lookAt(100f, 100f, 0);
 		camController = new CameraInputController(cam);
 		camController.scrollFactor = 5f;
-		camController.translateUnits = 1000f;
+		camController.translateUnits = 100f;
 		cam.update();
 	}
 
 	private void setupInput() {
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
+		multiplexer.addProcessor(terrainDebugWindow.stage);
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
-
 	}
-	
 
+	public void setTerrain(Terrain terrain) {
+		this.terrain = terrain;
+	}
+
+	public Terrain getTerrain() {
+		return terrain;
+	}
+
+	public Ocean getOcean() {
+		return ocean;
+	}
+
+	public void setOcean(Ocean ocean) {
+		this.ocean = ocean;
+	}
 
 }

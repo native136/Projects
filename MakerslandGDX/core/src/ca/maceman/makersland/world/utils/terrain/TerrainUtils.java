@@ -1,7 +1,5 @@
 package ca.maceman.makersland.world.utils.terrain;
 
-import ca.maceman.makersland.world.terrain.parts.TerrainTriangle;
-
 import com.badlogic.gdx.math.Vector3;
 
 public class TerrainUtils {

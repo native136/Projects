@@ -8,7 +8,7 @@ import ca.maceman.makersland.world.terrain.parts.TerrainTile;
  * Generates different kinds of noises for use in terrain generation.
  * 
  * @author andy.masse
- *
+ * 
  */
 public class NoiseGenerator {
 
@@ -21,7 +21,7 @@ public class NoiseGenerator {
 
 	// generates a array of random values (Noise)
 	public static float[][] GenerateWhiteNoise(int width, int height,
-			int borderWidth) {
+			int borderWidth, long seed) {
 
 		// new random
 		if (seed != 0) {
@@ -48,9 +48,9 @@ public class NoiseGenerator {
 		return noise;
 	}
 
-	public static float[][] GenerateRadialWhiteNoise(int width, int height) {
-		
-		int borderWidth = (int) Math.floor(width / 4);
+	public static float[][] GenerateRadialWhiteNoise(int width, int height, long seed) {
+
+		int borderWidth = (int) Math.floor(width / 8);
 		// new random
 		if (seed != 0) {
 			r = new Random(seed);
@@ -76,8 +76,8 @@ public class NoiseGenerator {
 					noise[i][j] = (float) 0;
 				} else {
 					noise[i][j] = (float) r.nextDouble()
-							- (distanceToCenter / 128);
-					if (noise[i][j] < 0){
+							- (distanceToCenter / 100);
+					if (noise[i][j] < 0) {
 						noise[i][j] = 0;
 					}
 				}

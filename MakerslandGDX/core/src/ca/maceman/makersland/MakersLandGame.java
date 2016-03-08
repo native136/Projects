@@ -13,7 +13,7 @@ public class MakersLandGame extends Game {
 
 	public void create() {
 		
-		gameView = new GameView(new Terrain(3, 7, 10f, 2, 6,6, 0, true));
+		gameView = new GameView(new Terrain(1, 6, 3.5f, 4, 2, 2, 0, true, 0));
 		
 	}
 

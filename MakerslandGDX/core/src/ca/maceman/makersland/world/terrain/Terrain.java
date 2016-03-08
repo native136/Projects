@@ -10,10 +10,11 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Quaternion;
 
 /**
  * Holds the Terrain information and model. The terrain Model is made using an
@@ -46,6 +47,7 @@ public class Terrain {
 	private TerrainChunk[][] chunks;
 
 	public TerrainVector[][] vectors;
+	private long seed = 0;
 
 	/**
 	 * Create a new Terrain
@@ -69,6 +71,20 @@ public class Terrain {
 		this.chunksHeight = chunksHeight;
 		this.borderSize = borderSize;
 		this.isIsland = isIsland;
+		generateModel();
+
+	}
+
+	public Terrain(int octaves, int octaveCount, float strength, float scale, int chunksWidth, int chunksHeight, int borderSize, boolean isIsland, long seed) {
+		this.octaves = octaves;
+		this.octaveCount = octaveCount;
+		this.strength = strength;
+		this.scale = scale;
+		this.chunksWidth = chunksWidth;
+		this.chunksHeight = chunksHeight;
+		this.borderSize = borderSize;
+		this.isIsland = isIsland;
+		this.seed = seed;
 		generateModel();
 
 	}
@@ -140,13 +156,13 @@ public class Terrain {
 		if (isIsland) {
 			heightMap = NoiseGenerator.GeneratePerlinNoise(
 					NoiseGenerator.GenerateSmoothNoise(
-							NoiseGenerator.GenerateRadialWhiteNoise(width, height),
+							NoiseGenerator.GenerateRadialWhiteNoise(width, height, seed),
 							octave),
 					octaveCount);
 		} else {
 			heightMap = NoiseGenerator.GeneratePerlinNoise(
 					NoiseGenerator.GenerateSmoothNoise(
-							NoiseGenerator.GenerateWhiteNoise(width, height, borderSize),
+							NoiseGenerator.GenerateWhiteNoise(width, height, borderSize, seed),
 							octave),
 					octaveCount);
 		}
@@ -157,7 +173,7 @@ public class Terrain {
 			for (int y = 0; y < height; y++) {
 				vectors[x][y] = new TerrainVector(x * TerrainTile.TILE_SIZE * scale,
 						y * TerrainTile.TILE_SIZE * scale,
-						1 + (heightMap[x][y] * 100 * scale));
+						(float) Math.pow((1 + (heightMap[x][y]) * strength), strength));
 			}
 		}
 
@@ -172,9 +188,9 @@ public class Terrain {
 	 */
 	public float getTerrainHeight(float xPos, float yPos) {
 
-		/* we first get the height of four points of the quad underneath the point
-		 * Check to make sure this point is not off the map at all
-		 * 
+		/*
+		 * we first get the height of four points of the quad underneath the
+		 * point Check to make sure this point is not off the map at all
 		 */
 		int x = (int) (xPos / scale);
 		int y = (int) (yPos / scale);
@@ -210,6 +226,10 @@ public class Terrain {
 
 		return (float) Math.pow(1 + height, strength);
 
+	}
+
+	public float getWidthUnits() {
+		return (float) chunksWidth * TerrainTile.TILE_SIZE * TerrainChunk.CHUNK_SIZE * scale;
 	}
 
 	public boolean isIsland() {
@@ -324,4 +344,62 @@ public class Terrain {
 		this.chunks = chunks;
 	}
 
+	public void refreshModel() {
+
+		/* 1 extra vector for outer edges. */
+		int width = (chunksWidth * TerrainChunk.CHUNK_SIZE) + 1;
+		int height = (chunksHeight * TerrainChunk.CHUNK_SIZE) + 1;
+
+		/* setup Builders */
+		ModelBuilder modelBuilder = new ModelBuilder();
+		MeshBuilder meshBuilder = new MeshBuilder();
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				vectors[x][y].z = (float) Math.pow((1 + (heightMap[x][y]) * strength), strength);
+			}
+		}
+
+		modelBuilder.begin();
+
+		/* For each chunk */
+		for (int x = 0; x < chunksWidth; x++) {
+			for (int y = 0; y < chunksHeight; y++) {
+
+				System.out.println("Chunk = " + x + ", " + y);
+				/* Create a model part */
+				meshBuilder.begin(Usage.Position | Usage.Normal | Usage.ColorPacked, GL20.GL_TRIANGLES);
+
+				/* using every tile's triangles */
+				for (int cx = 0; cx < chunks[x][y].tiles.length; cx++) {
+					for (int cy = 0; cy < chunks[x][y].tiles[0].length; cy++) {
+
+						System.out.println("Tile = " + cx + ", " + cy);
+
+						vi1 = chunks[x][y].tiles[cx][cy].getBottomTri().getRIVertexInfo();
+						vi2 = chunks[x][y].tiles[cx][cy].getBottomTri().getATVertexInfo();
+						vi3 = chunks[x][y].tiles[cx][cy].getBottomTri().getABVertexInfo();
+
+						meshBuilder.triangle(vi1, vi2, vi3);
+
+						vi1 = chunks[x][y].tiles[cx][cy].getTopTri().getRIVertexInfo();
+						vi2 = chunks[x][y].tiles[cx][cy].getTopTri().getATVertexInfo();
+						vi3 = chunks[x][y].tiles[cx][cy].getTopTri().getABVertexInfo();
+
+						meshBuilder.triangle(vi1, vi2, vi3);
+
+					}
+				}
+
+				Mesh mesh = meshBuilder.end();
+				modelBuilder.part("chunk" + Integer.toString(x) + "." + Integer.toString(y),
+						mesh,
+						GL20.GL_TRIANGLES,
+						new Material());
+			}
+		}
+
+		/* Terrain model finished */
+		terrainModel = modelBuilder.end();
+	}
 }

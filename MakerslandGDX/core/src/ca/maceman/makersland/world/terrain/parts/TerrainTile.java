@@ -7,7 +7,7 @@ public class TerrainTile {
 	 * |  |
 	 * 1--2
 	 */
-	public static final int TILE_SIZE = 2;
+	public static final int TILE_SIZE = 4;
 
 	private TerrainVector v1;
 	private TerrainVector v2;
@@ -17,6 +17,8 @@ public class TerrainTile {
 	private TerrainTriangle bottomTri;
 	private TerrainTriangle topTri;
 
+	private TerrainChunk parentChunk;
+
 	/**
 	 * A terrain Tile. Consists of 2 triangles.
 	 * 
@@ -25,17 +27,19 @@ public class TerrainTile {
 	 * @param v3
 	 * @param v4
 	 */
-	public TerrainTile(TerrainVector v1, TerrainVector v2, TerrainVector v3, TerrainVector v4) {
+	public TerrainTile(TerrainVector v1, TerrainVector v2, TerrainVector v3, TerrainVector v4, TerrainChunk parentChunk) {
 
+		this.parentChunk = parentChunk;
+		
 		if (Math.abs(v1.z - v4.z) > Math.abs(v2.z - v3.z)) {
 
-			bottomTri = new TerrainTriangle(v3, v1, v2);
-			topTri = new TerrainTriangle(v4, v3, v2);
+			bottomTri = new TerrainTriangle(v3, v1, v2, this);
+			topTri = new TerrainTriangle(v4, v3, v2, this);
 
 		} else {
 
-			bottomTri = new TerrainTriangle(v1, v2, v4);
-			topTri = new TerrainTriangle(v4, v3, v1);
+			bottomTri = new TerrainTriangle(v1, v2, v4, this);
+			topTri = new TerrainTriangle(v4, v3, v1, this);
 
 		}
 	}
@@ -87,4 +91,13 @@ public class TerrainTile {
 	public void setTopTri(TerrainTriangle topTri) {
 		this.topTri = topTri;
 	}
+
+	public TerrainChunk getParentChunk() {
+		return parentChunk;
+	}
+
+	public void setParentChunk(TerrainChunk parentChunk) {
+		this.parentChunk = parentChunk;
+	}
+
 }

@@ -8,9 +8,6 @@ public abstract class AbstractScreen extends InputAdapter implements Screen {
 	public AbstractScreen() {
 	}
 
-	/**
-	 * Create all your resources here
-	 */
 	public abstract void create();
 
 }

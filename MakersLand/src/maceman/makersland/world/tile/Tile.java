@@ -3,6 +3,7 @@ package maceman.makersland.world.tile;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 
 public class Tile {
 
@@ -52,14 +53,12 @@ public class Tile {
 		} else {
 			type = Type.EMPTY;
 		}
-
 	}
 
-	public void draw(Canvas canvas,int x, int y, int _tileSize, Paint paint) {
+	public void draw(Canvas canvas, int x, int y, int _tileSize, Paint paint) {
 		tileSize = _tileSize;
 		paint.setColor(getColor());
 		canvas.drawRect(x, y, x + tileSize, y + tileSize, paint);
-
 	}
 
 	public int getColor() {
@@ -85,21 +84,7 @@ public class Tile {
 			color = Color.rgb(180, 180, 180);
 		} else if (type == Type.SNOW) {
 			color = Color.rgb(255, 255, 255);
-		}// TODO
-			// } else if (type == Type.RIVER_SOURCE) {
-			// color = Color.CYAN;
-			// } else if (type == Type.RIVER) {
-			// color = Color.CYAN;
-			// } else if (type == Type.TOWNCENTER) {
-			// color = Color.orange;
-			// } else if (type == Type.ROAD) {
-			// color = Color.ORANGE;
-			// } else if (type == Type.BUILDING) {
-			// color = Color.RED;
-			// } else if (type == Type.WALL) {
-			// color = Color.BLACK;
-			// }
-
+		}
 		return color;
 	}
 

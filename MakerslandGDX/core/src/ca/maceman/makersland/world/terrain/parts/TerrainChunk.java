@@ -5,7 +5,7 @@ import ca.maceman.makersland.world.terrain.Terrain;
 
 public class TerrainChunk {
 
-	public static final int CHUNK_SIZE = 50;
+	public static final int CHUNK_SIZE = 64;
 
 	private Terrain parentTerrain;
 	public TerrainTile[][] tiles;
@@ -53,7 +53,7 @@ public class TerrainChunk {
 				tiles[i][j] = new TerrainTile(	parentTerrain.vectors[x][y],
 												parentTerrain.vectors[x+1][y],
 												parentTerrain.vectors[x][y+1],
-												parentTerrain.vectors[x+1][y+1]);
+												parentTerrain.vectors[x+1][y+1],this);
 
 			}
 		}
